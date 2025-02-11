@@ -1,7 +1,15 @@
+local ESX = nil
 local mp_m_freemode_01 = 'mp_m_freemode_01'
 local mp_f_freemode_01 = 'mp_f_freemode_01'
 
-if ESX.GetConfig().Multichar then
+-- ESX Initialization
+CreateThread(function()
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Wait(100)
+    end
+
+    if ESX.GetConfig().Multichar then
     CreateThread(function()
         while not ESX.PlayerLoaded do
             Wait(100)
