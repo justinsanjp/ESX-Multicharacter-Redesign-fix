@@ -9,26 +9,12 @@ CreateThread(function()
         Wait(100)
     end
 
-    if ESX.GetConfig().Multichar then
-    CreateThread(function()
-        while not ESX.PlayerLoaded do
-            Wait(100)
-            
-            if NetworkIsPlayerActive(PlayerId()) then
-                exports.spawnmanager:setAutoSpawn(false)
-                DoScreenFadeOut(0)
-                while GetResourceState('esx_context') ~= 'started' do
-                    Wait(100)
-                end
-                TriggerEvent("esx_multicharacter:SetupCharacters")
-                break
-            end
-        end
-    end)
+    if not ESX.GetConfig().Multichar then return end
 
     local canRelog, cam, spawned = true, nil, nil
     local Characters = {}
 
+    -- Event: Setup Characters
     RegisterNetEvent('esx_multicharacter:SetupCharacters')
     AddEventHandler('esx_multicharacter:SetupCharacters', function()
         ESX.PlayerLoaded = false
@@ -52,6 +38,7 @@ CreateThread(function()
         TriggerServerEvent("esx_multicharacter:SetupCharacters")
     end)
 
+    -- Function: Start Loop
     local function StartLoop()
         local hidePlayers = true
         MumbleSetVolumeOverride(PlayerId(), 0.0)
@@ -104,6 +91,7 @@ CreateThread(function()
         end)
     end
 
+    -- Function: Setup Character
     local function SetupCharacter(index)
         if not spawned then
             exports.spawnmanager:spawnPlayer({
@@ -152,6 +140,7 @@ CreateThread(function()
         })
     end
 
+    -- Function: Character Delete Confirmation
     local function CharacterDeleteConfirmation(Characters, slots, SelectedCharacter, value)
         local elements = {
             {title = TranslateCap('char_delete_confirmation'), icon = "fa-solid fa-users", description = TranslateCap('char_delete_confirmation_description'), unselectable = true},
@@ -170,6 +159,7 @@ CreateThread(function()
         end, nil, false)
     end
 
+    -- Function: Character Options
     local function CharacterOptions(Characters, slots, SelectedCharacter)
         local elements = {
             {title = TranslateCap('character', Characters[SelectedCharacter.value].firstname .. " ".. Characters[SelectedCharacter.value].lastname), icon = "fa-regular fa-user", unselectable = true},
@@ -201,6 +191,7 @@ CreateThread(function()
         end, nil, false)
     end
 
+    -- Function: Select Character Menu
     local function SelectCharacterMenu(Characters, slots)
         local Character = next(Characters)
         local elements = {{title = TranslateCap('select_char'), icon = "fa-solid fa-users", description = TranslateCap('select_char_description'), unselectable = true}}
@@ -248,6 +239,7 @@ CreateThread(function()
         end, nil, false)
     end
 
+    -- Event: Setup UI
     RegisterNetEvent('esx_multicharacter:SetupUI')
     AddEventHandler('esx_multicharacter:SetupUI', function(data, slots)
         DoScreenFadeOut(0)
@@ -280,6 +272,7 @@ CreateThread(function()
         end
     end)
 
+    -- Event: Player Loaded
     RegisterNetEvent('esx:playerLoaded')
     AddEventHandler('esx:playerLoaded', function(playerData, isNew, skin)
         local spawn = playerData.coords or Config.Spawn
@@ -325,6 +318,7 @@ CreateThread(function()
         Characters, hidePlayers = {}, false
     end)
 
+    -- Event: Player Logout
     RegisterNetEvent('esx:onPlayerLogout')
     AddEventHandler('esx:onPlayerLogout', function()
         DoScreenFadeOut(500)
@@ -334,6 +328,7 @@ CreateThread(function()
         TriggerEvent('esx_skin:resetFirstSpawn')
     end)
 
+    -- Command: Relog
     if Config.Relog then
         RegisterCommand('relog', function()
             if canRelog then
@@ -345,4 +340,4 @@ CreateThread(function()
             end
         end)
     end
-end
+end)
